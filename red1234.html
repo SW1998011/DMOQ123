@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.4"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+    <title>热力图功能示例</title>
+    <style type="text/css">
+        ul,li{list-style: none;margin:0;padding:0;float:left;}
+        html{height:100%}
+        body{height:100%;margin:0px;padding:0px;font-family:"微软雅黑"; position: relative;}
+        #container{height:100%;width:100%;}
+        #r-result{width:100%;position: absolute; left: 0; bottom: 0;}
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="r-result">
+        <input type="button"  onclick="openHeatmap();" value="显示热力图"/><input type="button"  onclick="closeHeatmap();" value="关闭热力图"/>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    var map = new BMap.Map("container");          // 创建地图实例
+
+    var point = new BMap.Point(114.0583,22.528561);//定义一个中心点坐标   深圳
+    map.centerAndZoom(point,14);//设定地图的中心点和坐标并将地图显示在地图容器中
+    map.enableScrollWheelZoom(); // 允许滚轮缩放
+
+ var points =[
+{'lat': 22.547041474225605,'lng': 114.07159598907224,"count": 75}, 
+{'lat': 22.559863862086786,'lng': 114.05067481307395,"count": 70}, 
+{'lat': 22.547041474225605,'lng': 114.07159598907224, "count": 75}, 
+{'lat': 22.53319739623319,'lng': 114.0521618680147, "count": 70}, 
+{'lat': 22.528138339147525,'lng': 114.053086853198,  "count": 50}, 
+{'lat': 22.537078169095434,'lng': 114.07187239767755, "count": 75},
+{'lat': 22.53985736624123,'lng': 114.06902369124526,"count": 30}, 
+{'lat': 22.5403133878405,'lng': 114.05615881010878,"count": 80},
+{'lat': 22.52876469127707,'lng': 114.05336829231418,"count": 75},
+{'lat': 22.547082112719753,'lng': 114.09028819960933,"count": 75},
+{'lat': 22.541450937345704,'lng': 114.06058635674559,"count": 80},
+{'lat': 22.52876469127707,'lng': 114.05336829231418,"count": 75},
+{'lat': 22.693403207664463,'lng': 113.80881584612234,"count": 70},
+{'lat': 22.562922275797238,'lng': 114.10433257743934,"count": 75},
+{'lat': 22.54432317374921,'lng': 114.05889251187652,"count": 30},
+{'lat': 22.54071424498886,'lng': 114.07589071674788, "count": 70},
+{'lat': 22.560413472139267,'lng': 114.10153453543778,"count": 30},
+{'lat': 22.530112976386064,'lng': 114.05163928417427,"count": 75}, 
+];
+
+
+
+/*
+    var points =[{"lat":31.227203440768868,"lng":121.49607206403445,"count":429891.0},
+{"lat":31.213348379555082,"lng":121.48123797847695,"count":248779.0},
+{"lat":31.169152089592195,"lng":121.44623500472937,"count":1085130.0},
+{"lat":31.213301496813617,"lng":121.3876161086648,"count":690571.0},
+{"lat":31.23538080348789,"lng":121.45475555700204,"count":246788.0},
+{"lat":31.263742929075534,"lng":121.39844294374956,"count":1288881.0},
+{"lat":31.288044465926138,"lng":121.4577688102147,"count":830476.0},
+{"lat":31.28249722898657,"lng":121.49191854079479,"count":852476.0},
+{"lat":31.304510479541904,"lng":121.5357165996346,"count":1313222.0},
+{"lat":31.093537540382123,"lng":121.42502428093465,"count":2429372.0},
+{"lat":31.398622694466777,"lng":121.40904121844942,"count":1904886.0},
+{"lat":31.36433805543363,"lng":121.25101353755592,"count":1471231.0},
+{"lat":31.23089534913395,"lng":121.6384813140922,"count":5044430.0},
+{"lat":30.83508077708232,"lng":121.24840817975154,"count":732410.0},
+{"lat":31.021244628098586,"lng":121.22679050142115,"count":1582398.0},
+{"lat":31.130862397996967,"lng":121.09142524282201,"count":1081022.0},
+{"lat":30.915122452605868,"lng":121.56064167963345,"count":1083463.0},
+{"lat":31.633564930802045,"lng":121.5353975435439,"count":703722.0},
+];
+*/
+
+    if(!isSupportCanvas()){
+        alert('热力图目前只支持有canvas支持的浏览器,您所使用的浏览器不能使用热力图功能~')
+    }
+    //详细的参数,可以查看heatmap.js的文档 https://github.com/pa7/heatmap.js/blob/master/README.md
+    //参数说明如下:
+    /* visible 热力图是否显示,默认为true
+     * opacity 热力的透明度,1-100
+     * radius 势力图的每个点的半径大小
+     * gradient  {JSON} 热力图的渐变区间 . gradient如下所示
+     *  {
+            .2:'rgb(0, 255, 255)',
+            .5:'rgb(0, 110, 255)',
+            .8:'rgb(100, 0, 255)'
+        }
+        其中 key 表示插值的位置, 0~1.
+            value 为颜色值.
+     */
+    heatmapOverlay = new BMapLib.HeatmapOverlay({"radius":20});
+    map.addOverlay(heatmapOverlay);
+    heatmapOverlay.setDataSet({data:points,max:100});
+    //是否显示热力图
+    function openHeatmap(){
+        heatmapOverlay.show();
+    }
+    function closeHeatmap(){
+        heatmapOverlay.hide();
+    }
+    closeHeatmap();
+    function setGradient(){
+        /*格式如下所示:
+        {
+            0:'rgb(102, 255, 0)',
+            .5:'rgb(255, 170, 0)',
+            1:'rgb(255, 0, 0)'
+        }*/
+        var gradient = {};
+        var colors = document.querySelectorAll("input[type='color']");
+        colors = [].slice.call(colors,0);
+        colors.forEach(function(ele){
+            gradient[ele.getAttribute("data-key")] = ele.value;
+        });
+        heatmapOverlay.setOptions({"gradient":gradient});
+    }
+    //判断浏览区是否支持canvas
+    function isSupportCanvas(){
+        var elem = document.createElement('canvas');
+        return !!(elem.getContext && elem.getContext('2d'));
+    }
+</script>
